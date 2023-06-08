@@ -20,7 +20,7 @@ jobs:
  
       - name: connect and pull repo
         run:  |
-         ssh bravo@18.116.3.154  "cd /home/bravo/sonarcloud && git clone git@github.com:alexandrBally/BRAVO_BE_TEST_SONARCLOUD.git"
+         ssh bravo@18.116.3.154  "cd /home/bravo/sonarcloud/BRAVO_BE_TEST_SONARCLOUD && git pull origin main"
         #  ssh bravo@18.116.3.154  "cd /home/bravo/sonarcloud && git pull origin dev"
 
         #  ssh bravo@18.116.3.154  "cd /home/bravo/BRAVO/ && make start"
