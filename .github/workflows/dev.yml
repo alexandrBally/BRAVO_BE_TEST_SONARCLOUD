@@ -1,7 +1,7 @@
 on:
     push:
       branches:
-        - dev
+        - main
     workflow_dispatch:
     
 jobs:
@@ -20,5 +20,7 @@ jobs:
  
       - name: connect and pull repo
         run:  |
-         ssh bravo@18.116.3.154  "cd /home/bravo/BRAVO/BRAVO_BE && git pull origin dev"
-         ssh bravo@18.116.3.154  "cd /home/bravo/BRAVO/ && make start"
+         ssh bravo@18.116.3.154  "cd /home/bravo/sonarcloud && git clone git@github.com:alexandrBally/BRAVO_BE_TEST_SONARCLOUD.git"
+        #  ssh bravo@18.116.3.154  "cd /home/bravo/sonarcloud && git pull origin dev"
+
+        #  ssh bravo@18.116.3.154  "cd /home/bravo/BRAVO/ && make start"
