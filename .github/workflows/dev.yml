@@ -1,9 +1,9 @@
 on:
-    push:
-      branches:
-        - main
-    workflow_dispatch:
-    
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
 jobs:
   sonarcloud:
     name: SonarCloud
@@ -11,29 +11,33 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          
+      - name: Check SonarCloud Analysis
+        if: ${{ always() }}
+        run: |
+          SONAR_RESULT=$(curl -s -X GET -u '${{ secrets.SONAR_TOKEN }}:' '${{ secrets.SONAR_HOST }}/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}&branch=${{ github.ref | replace("refs/heads/", "") }}')
+          if [[ "$(echo $SONAR_RESULT | jq -r '.projectStatus.status')" != "OK" ]]; then
+            echo "SonarCloud analysis failed with status $(echo $SONAR_RESULT | jq -r '.projectStatus.status')"
+            exit 1
+          else
+            echo "SonarCloud analysis passed"
+          fi
+
   deploy_app:
-      name: run pull
-      runs-on: ubuntu-latest
-      
-      steps: 
-            
+    name: run pull
+    runs-on: ubuntu-latest
+    steps:
       - name: install ssh keys
- 
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_rsa
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
- 
       - name: connect and pull repo
-        run:  |
-         ssh bravo@18.116.3.154  "cd /home/bravo/sonarcloud/BRAVO_BE_TEST_SONARCLOUD && git pull origin main"
-        #  ssh bravo@18.116.3.154  "cd /home/bravo/sonarcloud && git pull origin dev"
-
-        #  ssh bravo@18.116.3.154  "cd /home/bravo/BRAVO/ && make start"
+        if: ${{ success() }}
+        run: |
+          ssh bravo@18.116.3.154 "cd /home/bravo/sonarcloud/BRAVO_BE_TEST_SONARCLOUD && git pull origin main"
