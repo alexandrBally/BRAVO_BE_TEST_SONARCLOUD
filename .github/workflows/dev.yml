@@ -1,12 +1,16 @@
+name: My Workflow
 on:
   push:
     branches:
       - main
   workflow_dispatch:
+
 jobs:
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
+    env:
+      env: deploy_app
     steps:
       - uses: actions/checkout@v3
         with:
@@ -16,12 +20,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          run: echo "env=job2" >> $GITHUB_ENV
           
   deploy_app:
-    if: env.env == 'job2' || github.event_name == 'push'
-    needs: sonarcloud
     name: run pull
+    needs: sonarcloud
+    if: env.env == 'deploy_app' || github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: install ssh keys
