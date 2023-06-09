@@ -16,7 +16,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          run: echo "env=job2" >> $GITHUB_ENV
+          
   deploy_app:
+    if: env.env == 'job2' || github.event_name == 'push'
     needs: sonarcloud
     name: run pull
     runs-on: ubuntu-latest
