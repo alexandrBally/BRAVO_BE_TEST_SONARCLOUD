@@ -20,6 +20,7 @@ jobs:
 
 
   deploy_app:
+    needs: sonarcloud
     name: run pull
     runs-on: ubuntu-latest
     steps:
